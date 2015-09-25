@@ -1,0 +1,28 @@
+.grv-logviewer  {    
+
+	.grv-logviewer-save-edit{
+		display: inline-block;
+	}
+
+
+	.grv-logviewer-search{
+    display: inline-table;
+    border-collapse: separate;
+    width: 300px;
+    vertical-align: bottom;
+    margin-left: 15px;
+    float: right;
+	}
+
+
+	.grv-logviewer-log{
+		textarea {
+			width: 100%;
+			height: 100%;
+		}
+	}	
+}
+	
+
+
+

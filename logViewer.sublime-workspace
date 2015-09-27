@@ -7,22 +7,6 @@
 	},
 	"buffers":
 	[
-		{
-			"file": "gulpfile.js",
-			"settings":
-			{
-				"buffer_size": 360,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "/C/Users/Administrator/AppData/Roaming/Sublime Text 3/Packages/User/Default (Windows).sublime-keymap",
-			"settings":
-			{
-				"buffer_size": 77,
-				"line_ending": "Windows"
-			}
-		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -56,15 +40,19 @@
 	},
 	"expanded_folders":
 	[
-		"/C/Documents and Settings/Administrator/Documents/LogViewer/src"
+		"/C/Users/Administrator/Documents/GitHub/ReactLogViewer/src",
+		"/C/Users/Administrator/Documents/GitHub/ReactLogViewer/src/app",
+		"/C/Users/Administrator/Documents/GitHub/ReactLogViewer/src/app/components"
 	],
 	"file_history":
 	[
+		"/C/Users/Administrator/Documents/GitHub/ReactLogViewer/gulpfile.js",
+		"/C/Users/Administrator/AppData/Roaming/Sublime Text 3/Packages/User/Default (Windows).sublime-keymap",
+		"/C/Users/Administrator/Documents/GitHub/ReactLogViewer/server.js",
 		"/C/Documents and Settings/Administrator/Documents/LogViewer/src/app.js",
 		"/C/Documents and Settings/Administrator/Documents/LogViewer/src/app.html",
 		"/C/Users/Administrator/AppData/Roaming/Sublime Text 3/Packages/User/node.sublime-build",
 		"/C/Documents and Settings/Administrator/Documents/LogViewer/logViewer.sublime-project",
-		"/C/Users/Administrator/AppData/Roaming/Sublime Text 3/Packages/User/Default (Windows).sublime-keymap",
 		"/C/Documents and Settings/Administrator/Documents/LogViewer/src/test.js",
 		"/C/Documents and Settings/Administrator/Documents/LogViewer/gulpfile.js"
 	],
@@ -101,65 +89,8 @@
 	"groups":
 	[
 		{
-			"selected": 0,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "gulpfile.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 360,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								98,
-								98
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "/C/Users/Administrator/AppData/Roaming/Sublime Text 3/Packages/User/Default (Windows).sublime-keymap",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 77,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								77,
-								77
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JSON.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				}
 			]
 		}
 	],

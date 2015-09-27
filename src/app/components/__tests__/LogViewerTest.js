@@ -1,121 +1,103 @@
-/*eslint-env mocha, no-undef:true */  
+/*eslint-env mocha, no-undef:true */
 var LogViewer = require('../LogViewer');
 var store = require('../../stores/LogViewerStore');
 var webApi = require('../../services/WebApi');
+var Status = require('../../constants/LogViewerConstants').Status;
 var React = require('react');
-var assert = require('assert');
-var assign = require('object-assign');
+var expect = require('expect');
+var spyOn = expect.spyOn;
+
 var $ = require('jQuery');
 var $node;
 
-describe('LogViewer', function () {  
+describe('LogViewer', function () {
   this.timeout(5000);
-  var original = assign({}, webApi.logs);
-  webApi.logs.get = function(){};
-  
   beforeEach(function () {
-    store.init();
     $node = $('<div>').appendTo("body");
   });
 
   afterEach(function () {
-    webApi.logs = assign({}, original);
     React.unmountComponentAtNode($node[0])
   })
-  
-  describe('when it launches and makes a service request', function () {        
-    it('should make an ajax call and display loading indicator', function () {      
-      var wasCalled = false;
-      webApi.logs.get = function(){        
-        wasCalled =  true;
-        return $.Deferred();
-      }
-          
+
+  describe('when it launches and makes a service request', function () {
+    it('should make an ajax call and display loading indicator', function () {
+      var spy = spyOn(webApi.logs, 'get').andReturn($.Deferred());
       render();
-      assert(wasCalled);
-      assert.equal($node.find('.grv-indicators-loading').length, 1);                
+      expect(spy.calls.length).toEqual(1);
+      expect($node.find('.grv-indicators-loading').length).toEqual(1);
     });
   });
 
-  describe('when it receives service response', function () {     
+  describe('when it receives service response', function () {
     var serviceResponse = createSampleLogs();
     beforeEach(function(){
-      stubWebApiLogsWith(serviceResponse);
+      store.changeStatus(Status.UNDEFINED);
+      spyOn(webApi.logs, 'get').andReturn($.Deferred().resolve(serviceResponse));
     })
 
-    it('should render all logs', function(){        
+    it('should render all logs', function(){
       render();
-      assert.equal($node.find('.grv-indicators-loading').length, 0);                
-      assert.equal($node.find('.grv-logviewer-log').length, serviceResponse.length);                
+      expect($node.find('.grv-indicators-loading').length).toEqual(0);
+      expect($node.find('.grv-logviewer-log').length).toEqual(serviceResponse.length);
     });
 
-    it('should be empty if there are no logs', function(){        
-      stubWebApiLogsWith([]);
+    it('should be empty if there are no logs', function(){
+      spyOn(webApi.logs, 'get').andReturn($.Deferred().resolve([]));
       render();
-      assert.equal($node.find('.grv-logviewer-log').length, 0);                
+      expect($node.find('.grv-logviewer-log').length).toEqual(0);
     });
 
     it('should not display Save or Edit buttons without user changes', function(){
       render();
-      assert.equal($node.find('.grv-logviewer-save-edit buttons').length, 0);
-    });  
-
+      expect($node.find('.grv-logviewer-save-edit buttons').length).toEqual(0);
+    });
   });
 
-  describe('when user changes log audit state', function () {     
+  describe('when user changes log audit state', function () {
     beforeEach(function(){
-      stubWebApiLogsWith(createSampleLogs());          
+      spyOn(webApi.logs, 'get').andReturn($.Deferred().resolve(createSampleLogs()));
     })
 
     it('should reflect changes to suspicious flag', function(){
-      render();      
+      render();
       // record an original audit flag
-      var isSuspecious = store.getState().logs[0].audit.suspicious;
-
+      var isSuspecious = store.getLogs()[0].audit.suspicious;
       $node.find('.grv-logviewer-log input[type=checkbox]').click();
 
-      assert.equal(
-        store.getState().logs[0].audit.suspicious,
-        !isSuspecious);    
+      expect(store.getLogs()[0].audit.suspicious)
+        .toEqual(!isSuspecious);
     });
 
     it('should display Save and Edit buttons', function(){
-      render();                
+      render();
       $node.find('.grv-logviewer-log input[type=checkbox]').click();
-      assert.equal($node.find('.grv-logviewer-save-edit button').length, 2);                                  
+      expect($node.find('.grv-logviewer-save-edit button').length).toEqual(2);
     });
   });
 
 })
 
 function render(){
-  React.render(<LogViewer/>, $node[0]);  
+  React.render(<LogViewer/>, $node[0]);
 }
 
-function stubWebApiLogsWith(logs){
-  webApi.logs.get = function(){                  
-    return $.Deferred().resolve(logs);
-  }
-}
-
-function createSampleLogs(){  
+function createSampleLogs(){
   return [{
     'type': 'auth.attempt',
     'time': '2015-05-18T07:27:40Z',
-    'id': 'abc1234124124', 
+    'id': 'abc1234124124',
     'audit':{
       'suspicious': true,
       'comment': 'auditors comment'
       },
 
     'event': {
-      'user': 'bob', 
-      'success': false, 
-      'error': 'bad-key', 
+      'user': 'bob',
+      'success': false,
+      'error': 'bad-key',
       'addr': '192.168.1.1',
       'raddr': '192.168.1.2'
       }
     }]
 }
-
-

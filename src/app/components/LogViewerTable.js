@@ -5,12 +5,22 @@ var LogViewerTable = React.createClass({
 
   renderRows: function(){
     var rows = [];
-    for(var i = 0; i < this.props.logs.length; i++){  
-      var log = this.props.logs[i];    
+
+    for(var i = 0; i < this.props.logs.length; i++){
+      var log = this.props.logs[i];
+
+      var rowData = {
+        id: log.id,
+        type: log.type,
+        time: new Date(log.time).toLocaleString(),
+        suspicious: log.audit.suspicious,
+        comment: log.audit.comment
+      };
+
       rows.push(
-        <LogViewerTableRow      
+        <LogViewerTableRow
           key={log.id}
-          log={log} />);
+          {...rowData} />);
     }
 
     return rows;
@@ -29,7 +39,7 @@ var LogViewerTable = React.createClass({
               </tr>
           </thead>
             <tbody>
-              {this.renderRows()}                         
+              {this.renderRows()}
             </tbody>
         </table>
       </div>

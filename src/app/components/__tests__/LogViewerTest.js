@@ -1,6 +1,7 @@
 /*eslint-env mocha, no-undef:true */
 var LogViewer = require('../LogViewer');
-var store = require('../../stores/LogViewerStore');
+var appStore = require('../../stores/AppStore');
+var store = appStore.logViewerStore;
 var webApi = require('../../services/WebApi');
 var Status = require('../../constants/LogViewerConstants').Status;
 var React = require('react');
@@ -79,7 +80,7 @@ describe('LogViewer', function () {
 })
 
 function render(){
-  React.render(<LogViewer/>, $node[0]);
+  React.render(<LogViewer {...appStore}/>, $node[0]);
 }
 
 function createSampleLogs(){

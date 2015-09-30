@@ -1,27 +1,27 @@
 module.exports = {
-	// api endpoints
-	api: {
-		logs: '/api/logs'
-	},
+  // api endpoints
+  api: {
+    logs: '/api/logs'
+  },
 
-	// localization object 
-	loc: {
+  // localization object
+  loc: {
 
-		app: {
-			nameTxt: 'Gravitational' 
-		},
+    app: {
+      nameTxt: 'Gravitational'
+    },
 
-		nav: {
-			logViewerTxt: 'Log Viewer',
-			aboutTxt: 'About'
-		},
+    nav: {
+      logViewerTxt: 'Log Viewer',
+      aboutTxt: 'About'
+    },
 
-		logViewer: {
-			titleTxt: 'Log Viewer',
-			saveTxt: 'Save',
-			cancelTxt: 'Cancel',
-			allServersTxt: 'All servers'
-		}
+    logViewer: {
+      titleTxt: 'Log Viewer',
+      saveTxt: 'Save',
+      cancelTxt: 'Cancel',
+      allServersTxt: 'All servers'
+    }
 
-	}
+  }
 }

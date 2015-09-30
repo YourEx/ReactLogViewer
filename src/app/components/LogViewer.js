@@ -10,27 +10,29 @@ var LogViewer = React.createClass({
 
   getStateFromStore: function(){
     return {
-      searchValue: logViewerStore.getSearchValue(),
-      logs: logViewerStore.getLogs(),
-      status: logViewerStore.getStatus()
+      hasChanges: this.logViewerStore.hasChanges(),
+      isProcessing: this.logViewerStore.isProcessing(),
+      searchValue: this.logViewerStore.getSearchValue(),
+      logs: this.logViewerStore.getLogs(),
+      status: this.logViewerStore.getStatus()
      }
   },
 
   onUserSearch: function(event){
-    // todo: make it throttleable
     logViewerActions.setSearchValue(event.target.value);
   },
 
   componentDidMount: function() {
-    logViewerStore.addChangeListener(this._onChange);
+    this.logViewerStore.addChangeListener(this._onChange);
     logViewerActions.init();
   },
 
   componentWillUnmount: function() {
-    logViewerStore.removeChangeListener(this._onChange);
+    this.logViewerStore.removeChangeListener(this._onChange);
   },
 
   getInitialState: function() {
+    this.logViewerStore = this.props.logViewerStore;
     return this.getStateFromStore();
   },
 
@@ -39,12 +41,12 @@ var LogViewer = React.createClass({
     var saveEditButtons;
     var logs = this.state.logs;
 
-    if(logViewerStore.isProcessing()){
+    if(this.state.isProcessing){
       indicator =
         <div className="grv-indicators-loading" />
     }
 
-    if(logViewerStore.hasChanges()){
+    if(this.state.hasChanges){
       saveEditButtons =
         <div className="grv-logviewer-save-edit">
           <button type="button"

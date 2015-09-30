@@ -7,15 +7,15 @@ var About = require('./components/About');
 var LogViewer = require('./components/LogViewer');
 
 var routesCfg = (
-	<Route handler={App} name="app" path="/">
-		<Route handler={LogViewer} name="viewer" path="/viewer"/>
-		<Route handler={About} name="about" path="/about"/>
-		<DefaultRoute handler={LogViewer}/>
-	</Route>
-	);
+  <Route handler={App} name="app" path="/">
+    <Route handler={LogViewer} name="viewer" path="/viewer"/>
+    <Route handler={About} name="about" path="/about"/>
+    <DefaultRoute handler={LogViewer}/>
+  </Route>
+);
 
 Router
-	.create(routesCfg, Router.HashLocation)
-	.run(function(Root){
-		React.render((<Root/> ), document.body);
-	});	
+  .create(routesCfg, Router.HashLocation)
+  .run(function(Root) {
+    React.render((<Root/>), document.body);
+  });

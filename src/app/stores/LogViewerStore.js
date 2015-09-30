@@ -1,6 +1,5 @@
 /*eslint no-undef: 0,  no-unused-vars: 0, no-debugger:0, no-mixed-spaces-and-tabs:0*/
 var webApi = require('../services/WebApi');
-var AppDispatcher = require('../dispatcher/AppDispatcher');
 var EventEmitter = require('events').EventEmitter;
 var ActionType = require('../constants/LogViewerConstants').ActionType;
 var Status = require('../constants/LogViewerConstants').Status;
@@ -8,128 +7,136 @@ var assign = require('object-assign');
 
 var CHANGE_EVENT = 'onChange';
 
-var state = {
+var State = function(){
   // columns
-  columns: ['User name', 'Error type'],
+  this.columns = ['User name', 'Error type'];
 
   // logs
-  logs: [],
+  this.logs = [];
 
   // filtered logs
-  filteredLogs: [],
+  this.filteredLogs = [];
 
   // search value
-  searchValue: '',
+  this.searchValue = '';
 
   // audits to undo
-  auditsToUndo: {},
+  this.auditsToUndo = {};
 
   // status of the log viewer
-  status: {
+  this.status = {
     value: Status.UNDEFINED,
     message: ''
   }
 };
 
-var logViewerStore = assign({}, EventEmitter.prototype, {
+class LogViewerStore extends EventEmitter {
 
-  init: function(){
-    if(state.status.value === Status.UNDEFINED){
+  constructor() {
+    super();
+    this._state = new State();
+  }
+
+  init() {
+    if(this._state.status.value === Status.UNDEFINED){
       this.changeStatus(Status.PROCESSING);
       webApi.logs.get()
         .then(this.processLogs.bind(this))
         .fail(this.processError.bind(this));
     }
-  },
+  }
 
-  save: function(){
+  save() {
     this.changeStatus(Status.PROCESSING);
     var auditsToSave = this.getAuditsToSave();
     webApi.logs.save(auditsToSave)
       .then(this.commitChanges.bind(this))
       .fail(this.processError.bind(this));
-  },
+  }
 
-  processLogs: function(logs) {
-    state.logs = logs;
+  processLogs(logs) {
+    this._state.logs = logs;
     this.changeStatus(Status.READY);
     this.emitChange();
-  },
+  }
 
-  processError: function(){
+  processError(){
     this.changeStatus(Status.ERROR);
     this.emitChange();
-  },
+  }
 
-  hasChanges: function() {
-    return Object.getOwnPropertyNames(state.auditsToUndo).length > 0;
-  },
+  hasChanges() {
+    return Object.getOwnPropertyNames(this._state.auditsToUndo).length > 0;
+  }
 
-  isProcessing: function() {
-    return state.status.value === Status.PROCESSING;
-  },
+  isProcessing() {
+    return this._state.status.value === Status.PROCESSING;
+  }
 
-  undo: function() {
-    for (var i = 0; i < state.logs.length; i++) {
-      var id = state.logs[i].id;
-      if (state.auditsToUndo[id]) {
-        state.logs[i].audit = state.auditsToUndo[id];
+  undo() {
+    var logs = this._state.logs;
+    for (var i = 0; i < logs.length; i++) {
+      var id = logs[i].id;
+      if (this._state.auditsToUndo[id]) {
+        logs[i].audit = this._state.auditsToUndo[id];
       }
     }
 
-    state.auditsToUndo = {};
-  },
+    this._state.auditsToUndo = {};
+  }
 
-  changeAuditComment: function(id, comment) {
-    for (var i = 0; i < state.logs.length; i++) {
-      if (state.logs[i].id === id) {
-        this.addToUndo(state.logs[i]);
-        state.logs[i].audit.comment = comment;
+  changeAuditComment (id, comment) {
+    var logs = this._state.logs;
+    for (var i = 0; i < logs.length; i++) {
+      if (logs[i].id === id) {
+        this.addToUndo(logs[i]);
+        logs[i].audit.comment = comment;
       }
     }
-  },
+  }
 
-  changeAuditSuspicious: function(id, isSuspicious) {
-    for (var i = 0; i < state.logs.length; i++) {
-      if (state.logs[i].id === id) {
-        this.addToUndo(state.logs[i]);
-        state.logs[i].audit.suspicious = isSuspicious;
+  changeAuditSuspicious (id, isSuspicious) {
+    var logs = this._state.logs;
+    for (var i = 0; i < logs.length; i++) {
+      if (logs[i].id === id) {
+        this.addToUndo(logs[i]);
+        logs[i].audit.suspicious = isSuspicious;
       }
     }
-  },
+  }
 
-  commitChanges: function() {
-    state.auditsToUndo = {};
+  commitChanges () {
+    this._state.auditsToUndo = {};
     this.changeStatus(Status.READY);
     this.emitChange();
-  },
+  }
 
-  filter: function() {
-    var logs = state.logs;
-    if (state.searchValue) {
-      state.filteredLogs = logs.filter(matchSearchValue);
+  filter () {
+    var logs = this._state.logs;
+    if (this._state.searchValue) {
+      this._state.filteredLogs = logs.filter(matchSearchValue.bind(null, this._state));
     }else{
-      state.filteredLogs = state.logs;
+      this._state.filteredLogs = logs;
     }
-  },
+  }
 
-  getStatus: function(){
-    return state.status;
-  },
+  getStatus (){
+    return this._state.status;
+  }
 
-  getSearchValue: function() {
-    return state.searchValue;
-  },
+  getSearchValue () {
+    return this._state.searchValue;
+  }
 
-  getLogs: function() {
-    return state.searchValue.length > 0 ?
-      state.filteredLogs : state.logs;
-  },
+  getLogs () {
+    return this._state.searchValue.length > 0 ?
+      this._state.filteredLogs : this._state.logs;
+  }
 
-  getAuditsToSave: function() {
+  getAuditsToSave () {
     var auditsToSave = [];
-    state.logs.forEach(function(log) {
-      if (state.auditsToUndo[log.id]) {
+    this._state.logs.forEach(function(log) {
+      if (this._state.auditsToUndo[log.id]) {
         auditsToSave.push({
           id: log.id,
           audit: log.audit
@@ -138,38 +145,79 @@ var logViewerStore = assign({}, EventEmitter.prototype, {
     });
 
     return auditsToSave;
-  },
+  }
 
-  addToUndo: function(log) {
-    if (!state.auditsToUndo[log.id]) {
-      state.auditsToUndo[log.id] = assign({}, log.audit);
+  addToUndo (log) {
+    if (!this._state.auditsToUndo[log.id]) {
+      this._state.auditsToUndo[log.id] = assign({}, log.audit);
     }
-  },
+  }
 
-  setSearchValue: function(value) {
-    state.searchValue = value;
+  setSearchValue(value) {
+    this._state.searchValue = value;
     this.filter();
-  },
+  }
 
-  changeStatus: function(value, data) {
-    state.status.value = value;
-    state.status.data = data;
-  },
-  
-  emitChange: function() {
+  changeStatus (value, data) {
+    this._state.status.value = value;
+    this._state.status.data = data;
+  }
+
+  emitChange() {
     this.emit(CHANGE_EVENT);
-  },
+  }
 
-  addChangeListener: function(callback) {
+  addChangeListener (callback) {
     this.on(CHANGE_EVENT, callback);
-  },
+  }
 
-  removeChangeListener: function(callback) {
+  removeChangeListener (callback) {
     this.removeListener(CHANGE_EVENT, callback);
   }
-});
 
-function matchSearchValue(obj) {
+  processAction (action){
+    switch (action.actionType) {
+      case ActionType.INIT:
+        this.init();
+        this.emitChange();
+        break;
+
+      case ActionType.SET_SEARCH_VALUE:
+        this.setSearchValue(action.value);
+        this.emitChange();
+        break;
+
+      case ActionType.SAVE:
+        this.save();
+        this.emitChange();
+        break;
+
+      case ActionType.CHANGE_AUDIT:
+        this.changeAudit(action.id, action.audit);
+        this.emitChange();
+        break;
+
+      case ActionType.SET_AUDIT_COMMENT:
+        this.changeAuditComment(action.id, action.comment);
+        this.emitChange();
+        break;
+
+      case ActionType.SET_AUDIT_SUSPICIOS:
+        this.changeAuditSuspicious(action.id, action.isSuspicious);
+        this.emitChange();
+        break;
+
+      case ActionType.UNDO:
+        this.undo();
+        this.emitChange();
+        break;
+
+      default:
+    }
+  }
+}
+
+function matchSearchValue(state, obj) {
   var propNames = Object.getOwnPropertyNames(obj);
   var upperCaseSearchValue = state.searchValue.toLocaleUpperCase();
 
@@ -184,45 +232,4 @@ function matchSearchValue(obj) {
   return false;
 }
 
-AppDispatcher.register(function(action) {
-  switch (action.actionType) {
-    case ActionType.INIT:
-      logViewerStore.init();
-      logViewerStore.emitChange();
-      break;
-
-    case ActionType.SET_SEARCH_VALUE:
-      logViewerStore.setSearchValue(action.value);
-      logViewerStore.emitChange();
-      break;
-
-    case ActionType.SAVE:
-      logViewerStore.save();
-      logViewerStore.emitChange();
-      break;
-
-    case ActionType.CHANGE_AUDIT:
-      logViewerStore.changeAudit(action.id, action.audit);
-      logViewerStore.emitChange();
-      break;
-
-    case ActionType.SET_AUDIT_COMMENT:
-      logViewerStore.changeAuditComment(action.id, action.comment);
-      logViewerStore.emitChange();
-      break;
-
-    case ActionType.SET_AUDIT_SUSPICIOS:
-      logViewerStore.changeAuditSuspicious(action.id, action.isSuspicious);
-      logViewerStore.emitChange();
-      break;
-
-    case ActionType.UNDO:
-      logViewerStore.undo();
-      logViewerStore.emitChange();
-      break;
-
-    default:
-  }
-});
-
-module.exports = logViewerStore;
+module.exports = LogViewerStore;
